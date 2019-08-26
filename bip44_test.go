@@ -1,128 +1,35 @@
-package bip44_test
+package bip44
 
 import (
+	"encoding/hex"
+	"github.com/karen-ghazaryan/bip32"
 	"testing"
-
-	//"github.com/FactomProject/factom"
-	"github.com/FactomProject/go-bip32"
-	"github.com/FactomProject/go-bip39"
-	. "github.com/FactomProject/go-bip44"
 )
 
 func TestNewKeyFromMnemonic(t *testing.T) {
-	mnemonic := "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow"
-	fKey, err := NewKeyFromMnemonic(mnemonic, TypeFactomFactoids, bip32.FirstHardenedChild, 0, 0)
-	if err != nil {
-		panic(err)
-	}
-	if fKey.String() != "xprvA2vH8KdcBBKhMxhENJpJdbwiU5cUXSkaHR7QVTpBmusgYMR8NsZ4BFTNyRLUiaPHg7UYP8u92FJkSEAmmgu3PDQCoY7gBsdvpB7msWGCpXG" {
-		t.Errorf("Invalid Factoid key - %v", fKey.String())
-	}
-
-	ecKey, err := NewKeyFromMnemonic(mnemonic, TypeFactomEntryCredits, bip32.FirstHardenedChild, 0, 0)
-	if err != nil {
-		panic(err)
-	}
-	if ecKey.String() != "xprvA2ziNegvZRfAAUtDsjeS9LvCP1TFXfR3hUzMcJw7oYAhdPqZyiJTMf1ByyLRxvQmGvgbPcG6Q569m26ixWsmgTR3d3PwicrG7hGD7C7seJA" {
-		t.Errorf("Invalid EC key - %v", ecKey.String())
-	}
+	// excluding this test because NewKeyFromMasterKey
+	// is being used in NewKeyFromMnemonic
 }
 
 func TestNewKeyFromMasterKey(t *testing.T) {
-	mnemonic := "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow"
-
-	seed, err := bip39.NewSeedWithErrorChecking(mnemonic, "")
-	if err != nil {
-		panic(err)
-	}
-
+	seed, _ := hex.DecodeString("a672b4fb616c21b756729a30f014a86884b7ff9a5331f4082641d0d996a351956b5fa107aed15af12ffeba71ce00964cc889e5b3caead16cd991cff51f5bb52a")
 	masterKey, err := bip32.NewMasterKey(seed)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 
-	fKey, err := NewKeyFromMasterKey(masterKey, TypeFactomFactoids, bip32.FirstHardenedChild, 0, 0)
-	if err != nil {
-		panic(err)
-	}
-	if fKey.String() != "xprvA2vH8KdcBBKhMxhENJpJdbwiU5cUXSkaHR7QVTpBmusgYMR8NsZ4BFTNyRLUiaPHg7UYP8u92FJkSEAmmgu3PDQCoY7gBsdvpB7msWGCpXG" {
-		t.Errorf("Invalid Factoid key - %v", fKey.String())
-	}
+	t.Run("Case: generated addresses satisfying expected", func(t *testing.T) {
+		// m / purpose' / coin_type' / account' / change / address_index
+		key, err := NewKeyFromMasterKey(masterKey, TypeBitcoin, HardenedKeyStart, ExternalBranch, 0)
 
-	ecKey, err := NewKeyFromMasterKey(masterKey, TypeFactomEntryCredits, bip32.FirstHardenedChild, 0, 0)
-	if err != nil {
-		panic(err)
-	}
-	if ecKey.String() != "xprvA2ziNegvZRfAAUtDsjeS9LvCP1TFXfR3hUzMcJw7oYAhdPqZyiJTMf1ByyLRxvQmGvgbPcG6Q569m26ixWsmgTR3d3PwicrG7hGD7C7seJA" {
-		t.Errorf("Invalid EC key - %v", ecKey.String())
-	}
-}
-
-/*
-func TestTest(t *testing.T) {
-	//var factoidHex uint32 = 0x80000083
-	//var ecHex uint32 = 0x80000084
-
-	mnemonic := "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow"
-
-	seed, err := bip39.NewSeedWithErrorChecking(mnemonic, "")
-	if err != nil {
-		panic(err)
-	}
-
-	masterKey, err := bip32.NewMasterKey(seed)
-	if err != nil {
-		panic(err)
-	}
-
-	child, err := masterKey.NewChildKey(bip32.FirstHardenedChild + 44)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("%v", child.String())
-
-	child, err = child.NewChildKey(bip32.FirstHardenedChild + 132)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("%v", child.String())
-
-	child, err = child.NewChildKey(bip32.FirstHardenedChild)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("%v", child.String())
-
-	child, err = child.NewChildKey(0)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("%v", child.String())
-
-	child, err = child.NewChildKey(0)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("%v", child.String())
-
-	/*
-		if child.String()!="xprvA22bpQKA9av7gEKdskwxbBNaMso6XpmW7sXi5LGgKnGCMe82BYW68tcNXtn4ZiLHDYJ2HpRvknV7zdDSgBXtPo4dRwG8XCcU55akAcarx3G" {
-
+		if err != nil {
+			t.Fatal(err)
 		}
-*/ /*
 
-	key, err := NewKeyFromMnemonic(mnemonic, bip32.FirstHardenedChild, 0, 0, 0)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("%v", key.String())
-
-	add, err := factom.MakeFactoidAddress(key.Key)
-	if err != nil {
-		panic(err)
-	}
-	t.Logf("%v", add.String())
-
-	t.FailNow()
+		expectedPrivate := "xprvA42zRf7QytGacrzkvDJkqtZKiy4bZuDLXmwFaCaFTCtd5Y71eqgcSq5uszqUSdGj5vDFuRxGVoAqaQVZevxNiLjCsrzWdUYqSa4MfpjAAeU"
+		if key.String() != expectedPrivate {
+			t.Errorf("expecting %s got  %s", expectedPrivate, key.String())
+		}
+		t.Log(key)
+	})
 }
-*/

@@ -5,11 +5,49 @@
 package bip44
 
 import (
-	"github.com/FactomProject/go-bip32"
-	"github.com/FactomProject/go-bip39"
+	"github.com/karen-ghazaryan/bip32"
+	"github.com/karen-ghazaryan/bip39"
 )
 
-const Purpose uint32 = 0x8000002C
+const (
+	// Purpose is a constant set to 44' (or 0x8000002C) following the BIP43 recommendation.
+	// It indicates that the subtree of this node is used according to this specification.
+	Purpose = 0x8000002C
+	// HardenedKeyStart is the index at which a hardened key starts.  Each
+	// extended key has 2^31 normal child keys and 2^31 hardened child keys.
+	// Thus the range for normal child keys is [0, 2^31 - 1] and the range
+	// for hardened child keys is [2^31, 2^32 - 1].
+	HardenedKeyStart = 0x80000000 // 2^31
+	// MaxAccountNum is the maximum allowed account number.  This value was
+	// chosen because accounts are hardened children and therefore must not
+	// exceed the hardened child range of extended keys and it provides a
+	// reserved account at the top of the range for supporting imported
+	// addresses.
+	MaxAccountNum = HardenedKeyStart - 2 // 2^31 - 2
+	// MaxAddressesPerAccount is the maximum allowed number of addresses
+	// per account number.  This value is based on the limitation of the
+	// underlying hierarchical deterministic key derivation.
+	MaxAddressesPerAccount = HardenedKeyStart - 1
+
+	// DefaultAccountIndex is the number of the default account.
+	DefaultAccountIndex = HardenedKeyStart
+
+	// maxCoinType is the maximum allowed coin type used when structuring
+	// the BIP0044 multi-account hierarchy.  This value is based on the
+	// limitation of the underlying hierarchical deterministic key
+	// derivation.
+	maxCoinType = HardenedKeyStart - 1
+
+	// ExternalBranch is the child number to use when performing BIP0044
+	// style hierarchical deterministic key derivation for the external
+	// branch.
+	ExternalBranch uint32 = 0
+
+	// InternalBranch is the child number to use when performing BIP0044
+	// style hierarchical deterministic key derivation for the internal
+	// branch.
+	InternalBranch uint32 = 1
+)
 
 //https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
 //https://github.com/satoshilabs/slips/blob/master/slip-0044.md
@@ -112,8 +150,10 @@ const (
 	TypeFactomIdentity        uint32 = 0x80000119
 )
 
-func NewKeyFromMnemonic(mnemonic string, coin, account, chain, address uint32) (*bip32.Key, error) {
-	seed, err := bip39.NewSeedWithErrorChecking(mnemonic, "")
+// NewKeyFromMnemonic constructs and returns private key
+// m / purpose' / coin_type' / account' / chain / address_index
+func NewKeyFromMnemonic(mnemonic string, coin, account, chain, address uint32, password string) (*bip32.Key, error) {
+	seed, err := bip39.NewSeedWithErrorChecking(mnemonic, password)
 	if err != nil {
 		return nil, err
 	}
