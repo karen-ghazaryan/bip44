@@ -9,5 +9,3 @@ require (
 	github.com/karen-ghazaryan/bip39 v0.3.5
 	github.com/stretchr/testify v1.4.0
 )
-
-replace github.com/karen-ghazaryan/bip32 v0.3.5 => ../bip32
