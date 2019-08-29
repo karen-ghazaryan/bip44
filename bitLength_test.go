@@ -7,7 +7,7 @@ import (
 func TestBitLength(t *testing.T) {
 	child, err := NewKeyFromMnemonic(
 		"element fence situate special wrap snack method volcano busy ribbon neck sphere",
-		TypeBitcoin,
+		uint32(TypeBitcoin),
 		2147483648,
 		0,
 		19,
@@ -24,7 +24,7 @@ func TestBitLength(t *testing.T) {
 
 	child, err = NewKeyFromMnemonic(
 		"element fence situate special wrap snack method volcano busy ribbon neck sphere",
-		TypeFactomFactoids,
+		uint32(TypeFactomFactoids),
 		2147483648,
 		1,
 		19,

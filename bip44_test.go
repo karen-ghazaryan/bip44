@@ -20,7 +20,7 @@ func TestNewKeyFromMasterKey(t *testing.T) {
 
 	t.Run("Case: generated addresses satisfying expected", func(t *testing.T) {
 		// m / purpose' / coin_type' / account' / change / address_index
-		key, err := NewKeyFromMasterKey(masterKey, TypeBitcoin, HardenedKeyStart, ExternalBranch, 0)
+		key, err := NewKeyFromMasterKey(masterKey, uint32(TypeBitcoin), HardenedKeyStart, ExternalBranch, 0)
 
 		if err != nil {
 			t.Fatal(err)
